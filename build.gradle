@@ -35,6 +35,7 @@ dependencies {
 /* Other */
 dependencies {
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.4'
+    implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.1.1'
 }
 
 

@@ -32,6 +32,8 @@ public class ProjectController {
     public static final String EDIT_PROJECT = "/api/projects/{project_id}";
     public static final String DELETE_PROJECT = "/api/projects/{project_id}";
 
+    public static final String CREATE_OR_UPDATE_PROJECT = "/api/projects";
+
     @GetMapping(FETCH_PROJECTS)
     public List<ProjectDto> fetchProjects(
             @RequestParam(value = "prefix_name", required = false) Optional<String> optionalPrefix) {
@@ -40,17 +42,17 @@ public class ProjectController {
 
         Stream<ProjectEntity> projectStream = optionalPrefix
                 .map(projectRepository::streamAllByNameStartsWithIgnoreCase)
-                .orElseGet(projectRepository::streamAll);
+                .orElseGet(projectRepository::streamAllBy);
 
         return projectStream.map(project -> modelMapper.map(project, ProjectDto.class)).toList();
     }
 
-
+    @Deprecated
     @Transactional
     @PostMapping(CREATE_PROJECT)
     public ProjectDto createProject(@RequestParam String name) {
 
-        if(name.trim().isEmpty()){
+        if (name.trim().isEmpty()) {
             throw new BadRequestException("Name can't be empty");
         }
 
@@ -66,12 +68,53 @@ public class ProjectController {
     }
 
     @Transactional
+    @PutMapping(CREATE_OR_UPDATE_PROJECT)
+    public ProjectDto createOrUpdateProject(
+            @RequestParam(value = "project_id", required = false) Optional<Long> optionalProjectId,
+            @RequestParam(value = "project_name", required = false) Optional<String> optionalProjectName
+            // another params
+    ) {
+
+        optionalProjectName = optionalProjectName.filter(projectName -> !projectName.trim().isEmpty());
+
+        boolean isCreate = optionalProjectId.isEmpty();
+
+        if (isCreate && optionalProjectName.isEmpty()) {
+            throw new BadRequestException("Project name can't be empty");
+        }
+
+        final ProjectEntity project = optionalProjectId
+                .map(this::getProjectOrThrowException)
+                .orElseGet(() -> ProjectEntity.builder().build());
+
+
+        optionalProjectName.ifPresent(
+                projectName -> {
+                    projectRepository
+                            .findByName(projectName)
+                            .filter(anotherProject -> !Objects.equals(anotherProject.getId(), project.getId()))
+                            .ifPresent(anotherProject -> {
+                                throw new BadRequestException(String.format("Project %s already exists", projectName));
+                            });
+
+                    project.setName(projectName);
+                }
+
+        );
+
+        final ProjectEntity savedProject = projectRepository.saveAndFlush(project);
+
+        return modelMapper.map(savedProject, ProjectDto.class);
+    }
+
+    @Deprecated
+    @Transactional
     @PatchMapping(EDIT_PROJECT)
     public ProjectDto editProject(
             @PathVariable("project_id") Long projectId,
             @RequestParam String name) {
 
-        if(name.trim().isEmpty()){
+        if (name.trim().isEmpty()) {
             throw new BadRequestException("Name can't be empty");
         }
 
@@ -92,7 +135,7 @@ public class ProjectController {
 
     @Transactional
     @DeleteMapping(DELETE_PROJECT)
-    public AckDto deleteProject(@PathVariable("project_id") Long projectId){
+    public AckDto deleteProject(@PathVariable("project_id") Long projectId) {
 
         getProjectOrThrowException(projectId);
 

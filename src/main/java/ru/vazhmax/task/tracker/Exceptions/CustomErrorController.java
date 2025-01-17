@@ -27,7 +27,8 @@ public class CustomErrorController implements ErrorController {
 
         Map<String, Object> attributes = errorAttributes.getErrorAttributes(
                 webRequest,
-                ErrorAttributeOptions.of(ErrorAttributeOptions.Include.EXCEPTION, ErrorAttributeOptions.Include.MESSAGE)
+                ErrorAttributeOptions.of(ErrorAttributeOptions.Include.MESSAGE,
+                        ErrorAttributeOptions.Include.STATUS, ErrorAttributeOptions.Include.ERROR)
         );
 
         return ResponseEntity

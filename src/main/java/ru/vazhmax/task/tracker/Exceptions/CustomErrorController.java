@@ -22,10 +22,6 @@ public class CustomErrorController implements ErrorController {
 
     ErrorAttributes errorAttributes;
 
-    public String getErrorPath() {
-        return PATH;
-    }
-
     @RequestMapping(CustomErrorController.PATH)
     public ResponseEntity<ErrorDto> error(WebRequest webRequest) {
 

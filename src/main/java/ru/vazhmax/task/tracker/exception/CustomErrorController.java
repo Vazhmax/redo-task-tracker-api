@@ -1,4 +1,4 @@
-package ru.vazhmax.task.tracker.Exceptions;
+package ru.vazhmax.task.tracker.exception;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

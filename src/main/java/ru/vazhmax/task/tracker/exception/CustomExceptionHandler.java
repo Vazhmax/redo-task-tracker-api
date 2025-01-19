@@ -1,4 +1,4 @@
-package ru.vazhmax.task.tracker.Exceptions;
+package ru.vazhmax.task.tracker.exception;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;

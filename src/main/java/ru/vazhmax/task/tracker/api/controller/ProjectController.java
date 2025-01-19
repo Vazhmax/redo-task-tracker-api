@@ -3,11 +3,12 @@ package ru.vazhmax.task.tracker.api.controller;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import ru.vazhmax.task.tracker.Exceptions.BadRequestException;
-import ru.vazhmax.task.tracker.Exceptions.NotFoundException;
+import ru.vazhmax.task.tracker.exception.BadRequestException;
+import ru.vazhmax.task.tracker.exception.NotFoundException;
 import ru.vazhmax.task.tracker.api.dto.AckDto;
 import ru.vazhmax.task.tracker.api.dto.ProjectDto;
 import ru.vazhmax.task.tracker.store.entity.ProjectEntity;
@@ -22,6 +23,7 @@ import java.util.stream.Stream;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional(readOnly = true)
 @RestController
+@Slf4j
 public class ProjectController {
 
     ModelMapper modelMapper;
@@ -55,6 +57,7 @@ public class ProjectController {
         if (name.trim().isEmpty()) {
             throw new BadRequestException("Name can't be empty");
         }
+
 
         projectRepository
                 .findByName(name)
